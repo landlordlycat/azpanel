@@ -10,9 +10,9 @@ class AdminSetting extends AdminBase
 {
     public function baseIndex()
     {
-        View::assign('switch', Config::class('switch'));
-        View::assign('register', Config::class('register'));
-        View::assign('verify', Config::class('verification_code'));
+        View::assign('switch', Config::group('switch'));
+        View::assign('register', Config::group('register'));
+        View::assign('verify', Config::group('verification_code'));
         return View::fetch('../app/view/admin/setting/index.html');
     }
 
@@ -41,7 +41,7 @@ class AdminSetting extends AdminBase
 
     public function emailIndex()
     {
-        View::assign('smtp', Config::class('smtp'));
+        View::assign('smtp', Config::group('smtp'));
         return View::fetch('../app/view/admin/setting/email.html');
     }
 
@@ -102,7 +102,7 @@ class AdminSetting extends AdminBase
 
     public function telegramIndex()
     {
-        View::assign('telegram', Config::class('telegram'));
+        View::assign('telegram', Config::group('telegram'));
         return View::fetch('../app/view/admin/setting/telegram.html');
     }
 
@@ -125,7 +125,7 @@ class AdminSetting extends AdminBase
 
     public function customIndex()
     {
-        View::assign('custom', Config::class('custom'));
+        View::assign('custom', Config::group('custom'));
         return View::fetch('../app/view/admin/setting/custom.html');
     }
 
@@ -144,7 +144,7 @@ class AdminSetting extends AdminBase
 
     public function resolvIndex()
     {
-        View::assign('config', Config::class('resolv'));
+        View::assign('config', Config::group('resolv'));
         return View::fetch('../app/view/admin/setting/resolv.html');
     }
 

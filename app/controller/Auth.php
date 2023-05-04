@@ -21,7 +21,7 @@ class Auth extends BaseController
             return redirect('/user')->send();
         }
 
-        View::assign('verify', Config::class('verification_code'));
+        View::assign('verify', Config::group('verification_code'));
         return View::fetch('../app/view/auth/login.html');
     }
 
@@ -117,8 +117,8 @@ class Auth extends BaseController
 
     public function registerIndex()
     {
-        View::assign('register', Config::class('register'));
-        View::assign('verify', Config::class('verification_code'));
+        View::assign('register', Config::group('register'));
+        View::assign('verify', Config::group('verification_code'));
         return View::fetch('../app/view/auth/register.html');
     }
 

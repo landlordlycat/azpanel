@@ -78,8 +78,8 @@ class UserDashboard extends UserBase
     {
         $user_id     = session('user_id');
         $profile     = User::find($user_id);
-        $telegram    = Config::class('telegram');
-        $switch      = Config::class('switch');
+        $telegram    = Config::group('telegram');
+        $switch      = Config::group('switch');
         $personalise = json_decode($profile->personalise, true);
 
         $refresh_setting = AutoRefresh::where('user_id', $user_id)->find();

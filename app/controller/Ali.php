@@ -8,7 +8,7 @@ class Ali
 {
     public static function count($rr)
     {
-        $configs = Config::class('resolv');
+        $configs = Config::group('resolv');
         AlibabaCloud::accessKeyClient($configs['ali_ak'], $configs['ali_sk'])
             ->regionId('cn-hongkong')
             ->asDefaultClient();
@@ -36,7 +36,7 @@ class Ali
             return self::create($rr, $ip);
         }
 
-        $configs = Config::class('resolv');
+        $configs = Config::group('resolv');
         AlibabaCloud::accessKeyClient($configs['ali_ak'], $configs['ali_sk'])
             ->regionId('cn-hongkong')
             ->asDefaultClient();
@@ -60,7 +60,7 @@ class Ali
 
     public static function search($rr)
     {
-        $configs = Config::class('resolv');
+        $configs = Config::group('resolv');
         AlibabaCloud::accessKeyClient($configs['ali_ak'], $configs['ali_sk'])
             ->regionId('cn-hongkong')
             ->asDefaultClient();
@@ -88,7 +88,7 @@ class Ali
 
     public static function create($rr, $ip)
     {
-        $configs = Config::class('resolv');
+        $configs = Config::group('resolv');
         AlibabaCloud::accessKeyClient($configs['ali_ak'], $configs['ali_sk'])
             ->regionId('cn-hongkong')
             ->asDefaultClient();

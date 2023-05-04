@@ -12,7 +12,7 @@ class Notify
     public static function email($recipient, $title, $content)
     {
         $mail = new PHPMailer(true);
-        $smtp_configs = Config::class('smtp');
+        $smtp_configs = Config::group('smtp');
 
         // $mail->SMTPDebug  = SMTP::DEBUG_SERVER;                  // Enable verbose debug output
         $mail->isSMTP();                                            // Send using SMTP
