@@ -28,7 +28,7 @@ class Config extends Model
         }
     }
 
-    public static function class($name)
+    public static function group($name)
     {
         // 导入 database/config.sql 修复
 
