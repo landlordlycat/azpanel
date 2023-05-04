@@ -3,18 +3,16 @@ declare (strict_types = 1);
 
 namespace app\command;
 
-use think\console\Input;
-use think\console\Output;
-use think\console\Command;
-use think\console\input\Argument;
-use think\console\input\Option;
-
-use Carbon\Carbon;
-use think\facade\Log;
-use app\model\Traffic;
-use app\model\AzureServer;
 use app\controller\AzureApi;
 use app\controller\UserAzureServer;
+use app\model\AzureServer;
+use app\model\Traffic;
+use Carbon\Carbon;
+use think\console\Command;
+use think\console\Input;
+use think\console\input\Option;
+use think\console\Output;
+use think\facade\Log;
 
 class Tools extends Command
 {
@@ -28,8 +26,8 @@ class Tools extends Command
     public static function statisticsTraffic()
     {
         $servers = AzureServer::where('status', '<>', 'PowerState/deallocated')
-        ->where('skip', '0')
-        ->select();
+            ->where('skip', '0')
+            ->select();
 
         $start_time = date('Y-m-d\T 16:00:00\Z', strtotime(Carbon::parse('+2 days ago')->toDateTimeString()));
         $stop_time = date('Y-m-d\T 16:00:00\Z', strtotime(Carbon::parse('+1 days ago')->toDateTimeString()));
@@ -37,13 +35,12 @@ class Tools extends Command
         // dump($start_time);
         // dump($stop_time);
 
-        foreach ($servers as $server)
-        {
+        foreach ($servers as $server) {
             try {
                 $statistics = AzureApi::getVirtualMachineStatistics($server, $start_time, $stop_time);
                 foreach ($statistics['value'] as $key => $value) {
                     if ($value['name']['value'] == 'Network In Total') {
-                        $network_in_total  = $statistics['value'][$key]['timeseries']['0']['data'];
+                        $network_in_total = $statistics['value'][$key]['timeseries']['0']['data'];
                     }
                     if ($value['name']['value'] == 'Network Out Total') {
                         $network_out_total = $statistics['value'][$key]['timeseries']['0']['data'];
@@ -61,7 +58,7 @@ class Tools extends Command
                 $statistic->created_at = time();
                 $statistic->save();
             } catch (\Exception $e) {
-                $text = 'The virtual machine '. $server->vm_id .' or its resource group does not exist.';
+                $text = 'The virtual machine ' . $server->vm_id . ' or its resource group does not exist.';
                 Log::write($text, 'error');
                 $server->skip = 1;
                 $server->save();

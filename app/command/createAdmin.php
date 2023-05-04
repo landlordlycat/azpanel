@@ -3,15 +3,13 @@ declare (strict_types = 1);
 
 namespace app\command;
 
-use think\console\Input;
-use think\console\Output;
-use think\console\Command;
-use think\console\input\Option;
-use think\console\input\Argument;
-
-use app\model\User;
-use app\controller\Tools;
 use app\controller\AzureList;
+use app\controller\Tools;
+use app\model\User;
+use think\console\Command;
+use think\console\Input;
+use think\console\input\Option;
+use think\console\Output;
 
 class createAdmin extends Command
 {
@@ -40,13 +38,13 @@ class createAdmin extends Command
         }
 
         $user = new User;
-        $user->email       = $email;
-        $user->passwd      = Tools::encryption($passwd);
-        $user->status      = 1;
-        $user->is_admin    = 1;
+        $user->email = $email;
+        $user->passwd = Tools::encryption($passwd);
+        $user->status = 1;
+        $user->is_admin = 1;
         $user->personalise = AzureList::defaultPersonalise();
-        $user->created_at  = time();
-        $user->updated_at  = time();
+        $user->created_at = time();
+        $user->updated_at = time();
         $user->save();
 
         $output->writeln("<info>An administrator account has been created.</info>");

@@ -3,17 +3,17 @@ declare (strict_types = 1);
 
 namespace app\command;
 
-use think\facade\Log;
-use app\model\User;
+use app\controller\AzureApi;
+use app\controller\Notify;
 use app\model\AzureServer;
 use app\model\ControlLog;
 use app\model\ControlRule;
 use app\model\ControlTask;
-use app\controller\Notify;
-use app\controller\AzureApi;
+use app\model\User;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
+use think\facade\Log;
 
 class trafficControlStart extends Command
 {
@@ -27,11 +27,10 @@ class trafficControlStart extends Command
     protected function execute(Input $input, Output $output)
     {
         $tasks = ControlTask::where('status', 'wait')
-        ->where('execute_at', '<', time())
-        ->select();
+            ->where('execute_at', '<', time())
+            ->select();
 
-        foreach ($tasks as $task)
-        {
+        foreach ($tasks as $task) {
             try {
                 $server = AzureServer::where('vm_id', $task->vm_id)->find();
                 $rule = ControlRule::find($server->rule);
@@ -44,12 +43,12 @@ class trafficControlStart extends Command
                 $server->save();
 
                 $log = new ControlLog;
-                $log->user_id    = $server->user_id;
-                $log->rule_id    = $server->rule;
-                $log->rule_name  = $rule->name;
-                $log->vm_id      = $server->vm_id;
-                $log->vm_name    = $server->name;
-                $log->action     = 'start';
+                $log->user_id = $server->user_id;
+                $log->rule_id = $server->rule;
+                $log->rule_name = $rule->name;
+                $log->vm_id = $server->vm_id;
+                $log->vm_name = $server->name;
+                $log->action = 'start';
                 $log->created_at = time();
                 $log->save();
 

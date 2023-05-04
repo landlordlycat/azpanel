@@ -3,18 +3,18 @@ declare (strict_types = 1);
 
 namespace app\command;
 
-use think\facade\Log;
-use app\model\User;
+use app\controller\AzureApi;
+use app\controller\Notify;
+use app\controller\UserAzureServer;
 use app\model\AzureServer;
 use app\model\ControlLog;
 use app\model\ControlRule;
 use app\model\ControlTask;
-use app\controller\Notify;
-use app\controller\AzureApi;
-use app\controller\UserAzureServer;
+use app\model\User;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
+use think\facade\Log;
 
 class trafficControlStop extends Command
 {
@@ -28,19 +28,17 @@ class trafficControlStop extends Command
     protected function execute(Input $input, Output $output)
     {
         $servers = AzureServer::where('rule', '<>', '0')
-        ->where('status', 'PowerState/running')
-        ->where('skip', '<>', '1')
-        ->select();
+            ->where('status', 'PowerState/running')
+            ->where('skip', '<>', '1')
+            ->select();
 
-        foreach ($servers as $server)
-        {
+        foreach ($servers as $server) {
             $rule = ControlRule::find($server->rule);
 
-            if ($rule->switch == '1')
-            {
-                $stop_time  = time() - 28800;
+            if ($rule->switch == '1') {
+                $stop_time = time() - 28800;
                 $start_time = time() - ($rule->interval * 3600) - 28800;
-                $stop_time  = date('Y-m-d\T H:i:s\Z', $stop_time);
+                $stop_time = date('Y-m-d\T H:i:s\Z', $stop_time);
                 $start_time = date('Y-m-d\T H:i:s\Z', $start_time);
 
                 try {
@@ -48,7 +46,7 @@ class trafficControlStop extends Command
                     $statistics = AzureApi::getVirtualMachineStatistics($server, $start_time, $stop_time);
                     foreach ($statistics['value'] as $key => $value) {
                         if ($value['name']['value'] == 'Network In Total') {
-                            $in_indicator_usage_raw  = $statistics['value'][$key]['timeseries']['0']['data'];
+                            $in_indicator_usage_raw = $statistics['value'][$key]['timeseries']['0']['data'];
                         }
                         if ($value['name']['value'] == 'Network Out Total') {
                             $out_indicator_usage_raw = $statistics['value'][$key]['timeseries']['0']['data'];
@@ -98,23 +96,23 @@ class trafficControlStop extends Command
                         }
 
                         $log = new ControlLog;
-                        $log->user_id    = $server->user_id;
-                        $log->rule_id    = $server->rule;
-                        $log->rule_name  = $rule->name;
-                        $log->vm_id      = $server->vm_id;
-                        $log->vm_name    = $server->name;
-                        $log->action     = 'stop';
+                        $log->user_id = $server->user_id;
+                        $log->rule_id = $server->rule;
+                        $log->rule_name = $rule->name;
+                        $log->vm_id = $server->vm_id;
+                        $log->vm_name = $server->name;
+                        $log->action = 'stop';
                         $log->created_at = time();
                         $log->save();
 
                         $task = new ControlTask;
-                        $task->user_id      = $server->user_id;
-                        $task->rule_id      = $server->rule;
-                        $task->vm_id        = $server->vm_id;
-                        $task->status       = 'wait';
+                        $task->user_id = $server->user_id;
+                        $task->rule_id = $server->rule;
+                        $task->vm_id = $server->vm_id;
+                        $task->status = 'wait';
                         $task->recover_push = $rule->recover_push;
-                        $task->created_at   = time();
-                        $task->execute_at   = time() + ($rule->time * 3600);
+                        $task->created_at = time();
+                        $task->execute_at = time() + ($rule->time * 3600);
                         $task->save();
                     }
                 } catch (\Exception $e) {

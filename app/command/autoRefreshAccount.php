@@ -7,8 +7,8 @@ use app\controller\AzureApi;
 use app\controller\Notify;
 use app\controller\UserAzure;
 use app\model\AutoRefresh;
-use app\model\AzureServer;
 use app\model\Azure;
+use app\model\AzureServer;
 use app\model\Config;
 use app\model\User;
 use think\console\Command;
@@ -58,8 +58,7 @@ class autoRefreshAccount extends Command
                             $text .= PHP_EOL . '└';
 
                             $servers = AzureServer::where('account_id', $account->id)->select();
-                            foreach ($servers as $server)
-                            {
+                            foreach ($servers as $server) {
                                 $text .= $server->name . ',';
                             }
 
