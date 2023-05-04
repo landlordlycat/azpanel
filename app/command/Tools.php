@@ -1,5 +1,5 @@
 <?php
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace app\command;
 
@@ -39,10 +39,10 @@ class Tools extends Command
             try {
                 $statistics = AzureApi::getVirtualMachineStatistics($server, $start_time, $stop_time);
                 foreach ($statistics['value'] as $key => $value) {
-                    if ($value['name']['value'] == 'Network In Total') {
+                    if ($value['name']['value'] === 'Network In Total') {
                         $network_in_total = $statistics['value'][$key]['timeseries']['0']['data'];
                     }
-                    if ($value['name']['value'] == 'Network Out Total') {
+                    if ($value['name']['value'] === 'Network Out Total') {
                         $network_out_total = $statistics['value'][$key]['timeseries']['0']['data'];
                     }
                 }
@@ -50,7 +50,7 @@ class Tools extends Command
                 $in_total = UserAzureServer::processNetworkData($network_in_total, true);
                 $out_total = UserAzureServer::processNetworkData($network_out_total, true);
 
-                $statistic = new Traffic;
+                $statistic = new Traffic();
                 $statistic->u = $in_total;
                 $statistic->d = $out_total;
                 $statistic->date = date('Y-m-d', strtotime(Carbon::parse('+1 days ago')->toDateTimeString()));
@@ -69,7 +69,7 @@ class Tools extends Command
     protected function execute(Input $input, Output $output)
     {
         if ($input->hasOption('action')) {
-            if ($input->getOption('action') == 'statisticsTraffic') {
+            if ($input->getOption('action') === 'statisticsTraffic') {
                 self::statisticsTraffic();
                 $output->writeln("<info>All azure virtual machine traffic statistics are completed.</info>");
             } else {

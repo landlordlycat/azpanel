@@ -1,5 +1,5 @@
 <?php
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace app\command;
 
@@ -42,7 +42,7 @@ class trafficControlStart extends Command
                 $server->status = 'PowerState/running';
                 $server->save();
 
-                $log = new ControlLog;
+                $log = new ControlLog();
                 $log->user_id = $server->user_id;
                 $log->rule_id = $server->rule;
                 $log->rule_name = $rule->name;
@@ -52,11 +52,11 @@ class trafficControlStart extends Command
                 $log->created_at = time();
                 $log->save();
 
-                if ($task->recover_push == '1') {
+                if ($task->recover_push === 1) {
                     $user = User::where('id', $task->user_id)->find();
-                    if (!empty($user->notify_tgid)) {
+                    if (isset($user->notify_tgid)) {
                         try {
-                            $text = "虚拟机 $server->name 已重新启动";
+                            $text = "虚拟机 {$server->name} 已重新启动";
                             Notify::telegram($user->notify_tgid, $text);
                         } catch (\Exception $e) {
                             Log::write($e->getMessage(), 'push_error');

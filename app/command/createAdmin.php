@@ -1,5 +1,5 @@
 <?php
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace app\command;
 
@@ -27,17 +27,17 @@ class createAdmin extends Command
         $email = trim($input->getOption('email'));
         $passwd = trim($input->getOption('passwd'));
 
-        if ($email == '') {
+        if ($email === '') {
             $output->writeln("<error>Please set a login email.</error>");
         }
-        if ($passwd == '') {
+        if ($passwd === '') {
             $output->writeln("<error>Please set a login password.</error>");
         }
         if (!Tools::emailCheck($email)) {
             $output->writeln("<error>E-mail format is incorrect.</error>");
         }
 
-        $user = new User;
+        $user = new User();
         $user->email = $email;
         $user->passwd = Tools::encryption($passwd);
         $user->status = 1;

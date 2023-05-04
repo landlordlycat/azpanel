@@ -1,5 +1,5 @@
 <?php
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace app\command;
 
@@ -39,6 +39,6 @@ class closeTimeoutTask extends Command
             $task->save();
         }
 
-        $output->writeln("<info>A total of $count timeout tasks are closed this time.</info>");
+        $output->writeln("<info>A total of {$count} timeout tasks are closed this time.</info>");
     }
 }

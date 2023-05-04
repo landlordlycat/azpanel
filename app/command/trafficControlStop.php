@@ -1,5 +1,5 @@
 <?php
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace app\command;
 
@@ -35,7 +35,7 @@ class trafficControlStop extends Command
         foreach ($servers as $server) {
             $rule = ControlRule::find($server->rule);
 
-            if ($rule->switch == '1') {
+            if ($rule->switch === 1) {
                 $stop_time = time() - 28800;
                 $start_time = time() - ($rule->interval * 3600) - 28800;
                 $stop_time = date('Y-m-d\T H:i:s\Z', $stop_time);
@@ -45,10 +45,10 @@ class trafficControlStop extends Command
                     //$pointer = ($rule->index == 'traffic_in') ? '3' : '4';
                     $statistics = AzureApi::getVirtualMachineStatistics($server, $start_time, $stop_time);
                     foreach ($statistics['value'] as $key => $value) {
-                        if ($value['name']['value'] == 'Network In Total') {
+                        if ($value['name']['value'] === 'Network In Total') {
                             $in_indicator_usage_raw = $statistics['value'][$key]['timeseries']['0']['data'];
                         }
-                        if ($value['name']['value'] == 'Network Out Total') {
+                        if ($value['name']['value'] === 'Network Out Total') {
                             $out_indicator_usage_raw = $statistics['value'][$key]['timeseries']['0']['data'];
                         }
                     }
@@ -56,22 +56,22 @@ class trafficControlStop extends Command
                     $out_indicator_usage = UserAzureServer::processNetworkData($out_indicator_usage_raw, true);
 
                     $poweroff = false;
-                    if ($rule->index == 'traffic_in') {
+                    if ($rule->index === 'traffic_in') {
                         if ($in_indicator_usage > $rule->limit) {
                             $poweroff = true;
                         }
                     }
-                    if ($rule->index == 'traffic_out') {
+                    if ($rule->index === 'traffic_out') {
                         if ($out_indicator_usage > $rule->limit) {
                             $poweroff = true;
                         }
                     }
-                    if ($rule->index == 'traffic_in_or_out') {
+                    if ($rule->index === 'traffic_in_or_out') {
                         if ($in_indicator_usage > $rule->limit || $out_indicator_usage > $rule->limit) {
                             $poweroff = true;
                         }
                     }
-                    if ($rule->index == 'traffic_in_and_out') {
+                    if ($rule->index === 'traffic_in_and_out') {
                         if ($in_indicator_usage + $out_indicator_usage > $rule->limit) {
                             $poweroff = true;
                         }
@@ -83,11 +83,11 @@ class trafficControlStop extends Command
                         $server->status = 'PowerState/stopped';
                         $server->save();
 
-                        if ($rule->execute_push == '1') {
+                        if ($rule->execute_push === 1) {
                             $user = User::where('id', $rule->user_id)->find();
-                            if (!empty($user->notify_tgid)) {
+                            if (isset($user->notify_tgid)) {
                                 try {
-                                    $text = "虚拟机 $server->name 触发流量控制规则 $rule->name ，计划 $rule->time 小时后重新启动";
+                                    $text = "虚拟机 {$server->name} 触发流量控制规则 {$rule->name} ，计划 {$rule->time} 小时后重新启动";
                                     Notify::telegram($user->notify_tgid, $text);
                                 } catch (\Exception $e) {
                                     Log::write($e->getMessage(), 'push_error');
@@ -95,7 +95,7 @@ class trafficControlStop extends Command
                             }
                         }
 
-                        $log = new ControlLog;
+                        $log = new ControlLog();
                         $log->user_id = $server->user_id;
                         $log->rule_id = $server->rule;
                         $log->rule_name = $rule->name;
@@ -105,7 +105,7 @@ class trafficControlStop extends Command
                         $log->created_at = time();
                         $log->save();
 
-                        $task = new ControlTask;
+                        $task = new ControlTask();
                         $task->user_id = $server->user_id;
                         $task->rule_id = $server->rule;
                         $task->vm_id = $server->vm_id;
