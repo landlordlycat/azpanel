@@ -1,17 +1,17 @@
 <?php
 namespace app\controller;
 
-use app\model\User;
-use app\model\Config;
-use app\model\Verify;
-use app\model\LoginLog;
-use think\helper\Str;
-use think\facade\View;
-use think\facade\Request;
 use app\BaseController;
-use app\controller\Tools;
-use app\controller\Notify;
 use app\controller\AzureList;
+use app\controller\Notify;
+use app\controller\Tools;
+use app\model\Config;
+use app\model\LoginLog;
+use app\model\User;
+use app\model\Verify;
+use think\facade\Request;
+use think\facade\View;
+use think\helper\Str;
 
 class Auth extends BaseController
 {
@@ -27,9 +27,9 @@ class Auth extends BaseController
 
     public function login()
     {
-        $code       = input('code/s');
-        $email      = input('email/s');
-        $password   = Tools::encryption(input('password/s'));
+        $code = input('code/s');
+        $email = input('email/s');
+        $password = Tools::encryption(input('password/s'));
         $ip_address = Tools::getClientIp();
 
         if ($email == '' || $password == '') {
@@ -57,16 +57,16 @@ class Auth extends BaseController
         }
 
         $log = new LoginLog;
-        $log->email       = $email;
-        $log->ip          = $ip_address;
-        $log->ip_info     = Tools::IpInfo($ip_address);
-        $log->created_at  = time();
-        $log->ua          = Request::header('user-agent');
+        $log->email = $email;
+        $log->ip = $ip_address;
+        $log->ip_info = Tools::IpInfo($ip_address);
+        $log->created_at = time();
+        $log->ua = Request::header('user-agent');
 
         $user = User::where('email', $email)->find();
         if ($user == null) {
             $log->status = 0;
-            $log->info   = 'invalid.user';
+            $log->info = 'invalid.user';
             $log->save();
 
             $data = ['status' => '0', 'title' => '登录失败', 'content' => '用户不存在'];
@@ -75,7 +75,7 @@ class Auth extends BaseController
 
         if ($password != $user->passwd) {
             $log->status = 0;
-            $log->info   = 'passwd.error';
+            $log->info = 'passwd.error';
             $log->save();
 
             $data = ['status' => '0', 'title' => '登录失败', 'content' => '密码不正确'];
@@ -84,7 +84,7 @@ class Auth extends BaseController
 
         if ($user->status == 0) {
             $log->status = 0;
-            $log->info   = 'disabled.status';
+            $log->info = 'disabled.status';
             $log->save();
 
             $data = ['status' => '0', 'title' => '登录失败', 'content' => '账户被停用，请联系管理员'];
@@ -100,7 +100,7 @@ class Auth extends BaseController
 
         // 记录
         $log->status = 1;
-        $log->info   = 'success';
+        $log->info = 'success';
         $log->save();
 
         $data = ['status' => '1', 'title' => '登录成功', 'content' => '欢迎回来'];
@@ -124,7 +124,7 @@ class Auth extends BaseController
 
     public function registerCode()
     {
-        $ip    = Tools::getClientIp();
+        $ip = Tools::getClientIp();
         $email = input('email/s');
 
         if (!Tools::emailCheck($email)) {
@@ -136,8 +136,8 @@ class Auth extends BaseController
         }
 
         $exist = Verify::where('email', $email)
-        ->order('id', 'desc')
-        ->find();
+            ->order('id', 'desc')
+            ->find();
 
         if ($exist != null && (time() - $exist->created_at) < 60) {
             return json(Tools::msg('0', '发送失败', '两次发送时间间隔小于 60 秒'));
@@ -149,17 +149,17 @@ class Auth extends BaseController
         }
 
         $count = Verify::where('email', $email)
-        ->where('created_at', '>', time() - 86400)
-        ->count();
+            ->where('created_at', '>', time() - 86400)
+            ->count();
 
         if ($count > 5) {
             return json(Tools::msg('0', '发送失败', '24 小时内一个邮箱只能请求 5 次验证码'));
         }
 
         $count = Verify::where('email', $email)
-        ->where('created_at', '>', time() - 86400)
-        ->where('ip', $ip)
-        ->count();
+            ->where('created_at', '>', time() - 86400)
+            ->where('ip', $ip)
+            ->count();
 
         if ($count > 10) {
             return json(Tools::msg('0', '发送失败', '24 小时内一个 IP 只能请求 10 次验证码'));
@@ -169,10 +169,10 @@ class Auth extends BaseController
         $code = Str::lower($code);
 
         $verify = new Verify;
-        $verify->email      = $email;
-        $verify->type       = 'register';
-        $verify->code       = $code;
-        $verify->ip         = $ip;
+        $verify->email = $email;
+        $verify->type = 'register';
+        $verify->code = $code;
+        $verify->ip = $ip;
         $verify->created_at = time();
         $verify->expired_at = time() + 600;
         $verify->save();
@@ -184,9 +184,9 @@ class Auth extends BaseController
 
     public function publicRegister()
     {
-        $code          = input('code/s');
-        $email         = input('email/s');
-        $passwd        = input('passwd/s');
+        $code = input('code/s');
+        $email = input('email/s');
+        $passwd = input('passwd/s');
         $repeat_passwd = input('repeat_passwd/s');
 
         if (!Tools::emailCheck($email)) {
@@ -225,8 +225,8 @@ class Auth extends BaseController
             $verify_code = input('verify_code/s');
 
             $verify = Verify::where('email', $email)
-            ->order('id', 'desc')
-            ->find();
+                ->order('id', 'desc')
+                ->find();
 
             if ($verify == null || $verify->code != $verify_code) {
                 return json(Tools::msg('0', '注册失败', '验证码不相符'));
@@ -241,12 +241,12 @@ class Auth extends BaseController
         }
 
         $user = new User;
-        $user->email       = $email;
-        $user->passwd      = Tools::encryption($passwd);
-        $user->status      = 1;
+        $user->email = $email;
+        $user->passwd = Tools::encryption($passwd);
+        $user->status = 1;
         $user->personalise = AzureList::defaultPersonalise();
-        $user->created_at  = time();
-        $user->updated_at  = time();
+        $user->created_at = time();
+        $user->updated_at = time();
         $user->save();
 
         return json(Tools::msg('1', '注册结果', '注册成功'));
@@ -259,7 +259,7 @@ class Auth extends BaseController
 
     public function forgetCode()
     {
-        $ip    = Tools::getClientIp();
+        $ip = Tools::getClientIp();
         $email = input('email/s');
 
         if (!Config::obtain('reg_email_veriy')) {
@@ -271,8 +271,8 @@ class Auth extends BaseController
         }
 
         $exist = Verify::where('email', $email)
-        ->order('id', 'desc')
-        ->find();
+            ->order('id', 'desc')
+            ->find();
 
         if ($exist != null && (time() - $exist->created_at) < 60) {
             return json(Tools::msg('0', '发送失败', '两次发送时间间隔小于 60 秒'));
@@ -284,17 +284,17 @@ class Auth extends BaseController
         }
 
         $count = Verify::where('email', $email)
-        ->where('created_at', '>', time() - 86400)
-        ->count();
+            ->where('created_at', '>', time() - 86400)
+            ->count();
 
         if ($count > 5) {
             return json(Tools::msg('0', '发送失败', '24 小时内一个邮箱只能请求 5 次验证码'));
         }
 
         $count = Verify::where('email', $email)
-        ->where('created_at', '>', time() - 86400)
-        ->where('ip', $ip)
-        ->count();
+            ->where('created_at', '>', time() - 86400)
+            ->where('ip', $ip)
+            ->count();
 
         if ($count > 10) {
             return json(Tools::msg('0', '发送失败', '24 小时内一个 IP 只能请求 10 次验证码'));
@@ -304,10 +304,10 @@ class Auth extends BaseController
         $code = Str::lower($code);
 
         $verify = new Verify;
-        $verify->email      = $email;
-        $verify->type       = 'forget';
-        $verify->code       = $code;
-        $verify->ip         = $ip;
+        $verify->email = $email;
+        $verify->type = 'forget';
+        $verify->code = $code;
+        $verify->ip = $ip;
         $verify->created_at = time();
         $verify->expired_at = time() + 600;
         $verify->save();
@@ -319,9 +319,9 @@ class Auth extends BaseController
 
     public function resetPassword()
     {
-        $email         = input('email/s');
-        $passwd        = input('passwd/s');
-        $verify_code   = input('verify_code/s');
+        $email = input('email/s');
+        $passwd = input('passwd/s');
+        $verify_code = input('verify_code/s');
         $repeat_passwd = input('repeat_passwd/s');
 
         if (!Tools::emailCheck($email)) {
@@ -338,23 +338,23 @@ class Auth extends BaseController
         }
 
         $verify = Verify::where('email', $email)
-        ->order('id', 'desc')
-        ->find();
-    
+            ->order('id', 'desc')
+            ->find();
+
         if ($verify->code != $verify_code) {
             return json(Tools::msg('0', '重置失败', '验证码不相符'));
         }
-    
+
         if (time() > $verify->expired_at) {
             return json(Tools::msg('0', '重置失败', '验证码已过期'));
         }
-    
+
         $verify->result = 1;
         $verify->save();
 
         $user = User::where('email', $email)->find();
-        $user->passwd      = Tools::encryption($passwd);
-        $user->updated_at  = time();
+        $user->passwd = Tools::encryption($passwd);
+        $user->updated_at = time();
         $user->save();
 
         return json(Tools::msg('1', '重置结果', '重置成功'));

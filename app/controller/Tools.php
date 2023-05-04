@@ -29,7 +29,7 @@ class Tools
             return 'null';
         }
 
-        $ip = new Ip;
+        $ip = new Ip();
         $addr = $ip->ip2addr($ip_addr);
         $result = $addr['country'] . $addr['area'];
         return $result;

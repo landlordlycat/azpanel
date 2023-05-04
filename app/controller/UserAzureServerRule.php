@@ -1,20 +1,19 @@
 <?php
 namespace app\controller;
 
-use think\facade\View;
-use app\model\ControlLog;
-use app\model\ControlTask;
-use app\model\ControlRule;
-use app\model\AzureServer;
 use app\controller\Tools;
+use app\model\AzureServer;
+use app\model\ControlLog;
+use app\model\ControlRule;
+use think\facade\View;
 
 class UserAzureServerRule extends UserBase
 {
     public function index()
     {
         $rules = ControlRule::where('user_id', session('user_id'))
-        ->order('id', 'desc')
-        ->select();
+            ->order('id', 'desc')
+            ->select();
 
         View::assign('rules', $rules);
         View::assign('count', $rules->count());
@@ -29,8 +28,8 @@ class UserAzureServerRule extends UserBase
     public function read($id)
     {
         $servers = AzureServer::where('user_id', session('user_id'))
-        ->where('rule', $id)
-        ->select();
+            ->where('rule', $id)
+            ->select();
 
         View::assign('count', $servers->count());
         View::assign('servers', $servers);
@@ -39,12 +38,12 @@ class UserAzureServerRule extends UserBase
 
     public function save()
     {
-        $rule_name         = input('rule_name/s');
-        $rule_index        = input('rule_index/s');
-        $rule_time         = (int) input('rule_time/s');
-        $rule_limit        = (int) input('rule_limit/s');
-        $rule_switch       = (int) input('rule_switch/s');
-        $rule_interval     = (int) input('rule_interval/s');
+        $rule_name = input('rule_name/s');
+        $rule_index = input('rule_index/s');
+        $rule_time = (int) input('rule_time/s');
+        $rule_limit = (int) input('rule_limit/s');
+        $rule_switch = (int) input('rule_switch/s');
+        $rule_interval = (int) input('rule_interval/s');
         $rule_execute_push = (int) input('rule_execute_push/s');
         $rule_recover_push = (int) input('rule_recover_push/s');
 
@@ -53,15 +52,15 @@ class UserAzureServerRule extends UserBase
         }
 
         $rule = new ControlRule;
-        $rule->user_id      = session('user_id');
-        $rule->name         = $rule_name;
-        $rule->index        = $rule_index;
-        $rule->time         = $rule_time;
-        $rule->limit        = $rule_limit;
-        $rule->switch       = $rule_switch;
-        $rule->interval     = $rule_interval;
-        $rule->created_at   = time();
-        $rule->updated_at   = time();
+        $rule->user_id = session('user_id');
+        $rule->name = $rule_name;
+        $rule->index = $rule_index;
+        $rule->time = $rule_time;
+        $rule->limit = $rule_limit;
+        $rule->switch = $rule_switch;
+        $rule->interval = $rule_interval;
+        $rule->created_at = time();
+        $rule->updated_at = time();
         $rule->execute_push = $rule_execute_push;
         $rule->recover_push = $rule_recover_push;
         $rule->save();
@@ -82,12 +81,12 @@ class UserAzureServerRule extends UserBase
 
     public function update($id)
     {
-        $rule_name         = input('rule_name/s');
-        $rule_index        = input('rule_index/s');
-        $rule_time         = (int) input('rule_time/s');
-        $rule_limit        = (int) input('rule_limit/s');
-        $rule_switch       = (int) input('rule_switch/s');
-        $rule_interval     = (int) input('rule_interval/s');
+        $rule_name = input('rule_name/s');
+        $rule_index = input('rule_index/s');
+        $rule_time = (int) input('rule_time/s');
+        $rule_limit = (int) input('rule_limit/s');
+        $rule_switch = (int) input('rule_switch/s');
+        $rule_interval = (int) input('rule_interval/s');
         $rule_execute_push = (int) input('rule_execute_push/s');
         $rule_recover_push = (int) input('rule_recover_push/s');
 
@@ -96,13 +95,13 @@ class UserAzureServerRule extends UserBase
         }
 
         $rule = ControlRule::where('user_id', session('user_id'))->find($id);
-        $rule->name         = $rule_name;
-        $rule->index        = $rule_index;
-        $rule->time         = $rule_time;
-        $rule->limit        = $rule_limit;
-        $rule->switch       = $rule_switch;
-        $rule->interval     = $rule_interval;
-        $rule->updated_at   = time();
+        $rule->name = $rule_name;
+        $rule->index = $rule_index;
+        $rule->time = $rule_time;
+        $rule->limit = $rule_limit;
+        $rule->switch = $rule_switch;
+        $rule->interval = $rule_interval;
+        $rule->updated_at = time();
         $rule->execute_push = $rule_execute_push;
         $rule->recover_push = $rule_recover_push;
         $rule->save();
@@ -113,15 +112,14 @@ class UserAzureServerRule extends UserBase
     public function delete($id)
     {
         ControlRule::where('user_id', session('user_id'))
-        ->where('id', $id)
-        ->delete();
+            ->where('id', $id)
+            ->delete();
 
         $servers = AzureServer::where('user_id', session('user_id'))
-        ->where('rule', $id)
-        ->select();
+            ->where('rule', $id)
+            ->select();
 
-        foreach ($servers as $server)
-        {
+        foreach ($servers as $server) {
             $server->rule = 0;
             $server->save();
         }
@@ -132,8 +130,8 @@ class UserAzureServerRule extends UserBase
     public function log()
     {
         $logs = ControlLog::where('user_id', session('user_id'))
-        ->order('id', 'desc')
-        ->paginate(30);
+            ->order('id', 'desc')
+            ->paginate(30);
 
         $page = $logs->render();
 

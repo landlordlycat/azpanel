@@ -1,27 +1,26 @@
 <?php
 namespace app\controller;
 
-use think\facade\Db;
-use think\helper\Str;
-use think\facade\Env;
-use think\facade\View;
-use GuzzleHttp\Client;
-use app\controller\Tools;
 use app\controller\AzureApi;
-use app\controller\UserTask;
+use app\controller\Tools;
 use app\controller\UserAzureServer;
+use app\controller\UserTask;
 use app\model\Azure;
-use app\model\Share;
-use app\model\AzureServer;
 use app\model\AzureRecycle;
+use app\model\AzureServer;
+use app\model\Share;
+use GuzzleHttp\Client;
+use think\facade\Db;
+use think\facade\View;
+use think\helper\Str;
 
 class UserAzure extends UserBase
 {
     public function index()
     {
         $accounts = Azure::where('user_id', session('user_id'))
-        ->order('id', 'desc')
-        ->select();
+            ->order('id', 'desc')
+            ->select();
 
         View::assign('count', $accounts->count());
         View::assign('accounts', $accounts);
@@ -37,14 +36,14 @@ class UserAzure extends UserBase
         $s_status = input('s_status/s');
 
         $condition[] = ['user_id', '=', $user_id];
-        ($s_name != '')      && $condition[] = ['az_email',      'like', '%'.$s_name.'%'];
-        ($s_mark != '')      && $condition[] = ['user_mark',     'like', '%'.$s_mark.'%'];
-        ($s_type != 'all')   && $condition[] = ['az_sub_type',   '=', $s_type];
+        ($s_name != '') && $condition[] = ['az_email', 'like', '%' . $s_name . '%'];
+        ($s_mark != '') && $condition[] = ['user_mark', 'like', '%' . $s_mark . '%'];
+        ($s_type != 'all') && $condition[] = ['az_sub_type', '=', $s_type];
         ($s_status != 'all') && $condition[] = ['az_sub_status', '=', $s_status];
 
         $data = Azure::where($condition)
-        ->field('id')
-        ->select();
+            ->field('id')
+            ->select();
 
         // $sql = Db::getLastSql();
 
@@ -62,8 +61,8 @@ class UserAzure extends UserBase
                     ->where('id', $account)
                     ->find();
                 // check
-                if (! isset($details)) {
-                    throw new \Exception('此账户不存在或不属于你');
+                if (!isset($details)) {
+                    throw new \Exception ('此账户不存在或不属于你');
                 }
                 // encode
                 $az_api = json_decode($details->az_api, true);
@@ -73,7 +72,7 @@ class UserAzure extends UserBase
                     'subscription_id' => $details->az_sub_id,
                     'appId' => $az_api['appId'],
                     'password' => $az_api['password'],
-                    'tenant' => $az_api['tenant']
+                    'tenant' => $az_api['tenant'],
                 ];
                 // delete
                 AzureServer::where('account_id', $details->id)->delete();
@@ -119,11 +118,11 @@ class UserAzure extends UserBase
             // get & decode
             $content = file_get_contents($url, false, stream_context_create($stream_opts));
             if (Str::contains($content, 'thinkphp_show_page_trace')) {
-                throw new \Exception('共享方站点未关闭调试模式，因此不能正确解码数据');
+                throw new \Exception ('共享方站点未关闭调试模式，因此不能正确解码数据');
             }
             $content = json_decode($content, true);
             if ($content['msg'] !== 'ok') {
-                throw new \Exception('无效的分享链接');
+                throw new \Exception ('无效的分享链接');
             }
             // save
             foreach ($content['content'] as $api) {
@@ -218,7 +217,7 @@ class UserAzure extends UserBase
             'subscription_id' => $account->az_sub_id,
             'appId' => $az_api['appId'],
             'password' => $az_api['password'],
-            'tenant' => $az_api['tenant']
+            'tenant' => $az_api['tenant'],
         ];
 
         View::assign('az_api', $az_api);
@@ -253,13 +252,13 @@ class UserAzure extends UserBase
 
     public function save()
     {
-        $user_mark    = input('user_mark/s');
-        $az_email     = input('az_email/s');
-        $az_passwd    = input('az_passwd/s');
-        $az_app_id    = input('az_app_id/s');
-        $az_secret    = input('az_secret/s');
+        $user_mark = input('user_mark/s');
+        $az_email = input('az_email/s');
+        $az_passwd = input('az_passwd/s');
+        $az_app_id = input('az_app_id/s');
+        $az_secret = input('az_secret/s');
         $az_tenant_id = input('az_tenant_id/s');
-        $az_configs   = input('az_configs/s');
+        $az_configs = input('az_configs/s');
         $ignore_status = input('ignore_status/s');
         $remark_filling = input('remark_filling/s');
 
@@ -283,9 +282,9 @@ class UserAzure extends UserBase
             }
         }
 
-        $az_api_app_id    = $configs['appId']    ?? $az_app_id    ?? null;
-        $az_api_secret    = $configs['password'] ?? $az_secret    ?? null;
-        $az_api_tenant_id = $configs['tenant']   ?? $az_tenant_id ?? null;
+        $az_api_app_id = $configs['appId'] ?? $az_app_id ?? null;
+        $az_api_secret = $configs['password'] ?? $az_secret ?? null;
+        $az_api_tenant_id = $configs['tenant'] ?? $az_tenant_id ?? null;
 
         if (!empty($configs['login_user'])) {
             $az_email = $configs['login_user'];
@@ -314,17 +313,17 @@ class UserAzure extends UserBase
         }
 
         $az_api = [
-            'appId'     => $az_api_app_id,
-            'password'  => $az_api_secret,
-            'tenant'    => $az_api_tenant_id
+            'appId' => $az_api_app_id,
+            'password' => $az_api_secret,
+            'tenant' => $az_api_tenant_id,
         ];
 
         $account = new Azure;
-        $account->user_id    = session('user_id');
-        $account->az_email   = $az_email;
-        $account->az_passwd  = $az_passwd;
-        $account->user_mark  = ($remark_filling == 'input') ? $user_mark : $remark_filling;
-        $account->az_api     = json_encode($az_api);
+        $account->user_id = session('user_id');
+        $account->az_email = $az_email;
+        $account->az_passwd = $az_passwd;
+        $account->user_mark = ($remark_filling == 'input') ? $user_mark : $remark_filling;
+        $account->az_api = json_encode($az_api);
         $account->created_at = time();
         $account->updated_at = time();
         $account->save();
@@ -332,11 +331,11 @@ class UserAzure extends UserBase
         try {
             $sub_info = AzureApi::getAzureSubscription($account->id); // array
             if ($sub_info['count']['value'] == '0') {
-                throw new \Exception('此账户无有效订阅。若有，建议使用以下命令获取 Api 参数 <div class="mdui-typo"><code>az ad sp create-for-rbac --role contributor --scopes /subscriptions/$(az account list --query [].id -o tsv)</code></div>');
+                throw new \Exception ('此账户无有效订阅。若有，建议使用以下命令获取 Api 参数 <div class="mdui-typo"><code>az ad sp create-for-rbac --role contributor --scopes /subscriptions/$(az account list --query [].id -o tsv)</code></div>');
             }
             if ($sub_info['value']['0']['state'] != 'Enabled') {
                 if ($ignore_status == 'false') {
-                    throw new \Exception('此账户订阅状态异常，若有需要，请勾选忽略订阅状态');
+                    throw new \Exception ('此账户订阅状态异常，若有需要，请勾选忽略订阅状态');
                 }
             }
         } catch (\Exception $e) {
@@ -344,10 +343,10 @@ class UserAzure extends UserBase
             return json(Tools::msg('0', '添加失败', $e->getMessage()));
         }
 
-        $account->az_sub            = json_encode($sub_info);
-        $account->az_sub_id         = $sub_info['value']['0']['subscriptionId'];
-        $account->az_sub_status     = $sub_info['value']['0']['state'];
-        $account->az_sub_type       = self::discern($sub_info['value']['0']['subscriptionPolicies']['quotaId']);
+        $account->az_sub = json_encode($sub_info);
+        $account->az_sub_id = $sub_info['value']['0']['subscriptionId'];
+        $account->az_sub_status = $sub_info['value']['0']['state'];
+        $account->az_sub_type = self::discern($sub_info['value']['0']['subscriptionPolicies']['quotaId']);
         $account->az_sub_updated_at = time();
         $account->save();
 
@@ -373,7 +372,7 @@ class UserAzure extends UserBase
     public function update($id)
     {
         $user_mark = input('user_mark/s');
-        $az_email  = input('az_email/s');
+        $az_email = input('az_email/s');
         $az_passwd = input('az_passwd/s');
 
         // 如果邮箱不规范
@@ -382,9 +381,9 @@ class UserAzure extends UserBase
         }
 
         $account = Azure::where('user_id', session('user_id'))->find($id);
-        $account->az_email   = $az_email;
-        $account->az_passwd  = $az_passwd;
-        $account->user_mark  = $user_mark;
+        $account->az_email = $az_email;
+        $account->az_passwd = $az_passwd;
+        $account->user_mark = $user_mark;
         $account->save();
 
         return json(Tools::msg('1', '修改成功', '将返回账户列表'));
@@ -425,7 +424,7 @@ class UserAzure extends UserBase
         $servers = AzureServer::where('account_id', $id)->select();
 
         foreach ($servers as $server) {
-            if (! isset($server->disk_details)) {
+            if (!isset($server->disk_details)) {
                 $server->disk_details = json_encode(AzureApi::getDisks($server));
                 $server->save();
             }
@@ -449,10 +448,9 @@ class UserAzure extends UserBase
             $cumulative_startup_time = 0;
             $sizes = AzureList::sizes();
             $servers = AzureServer::where('user_id', session('user_id'))
-            ->where('account_id', $id)
-            ->select();
-            foreach ($servers as $server)
-            {
+                ->where('account_id', $id)
+                ->select();
+            foreach ($servers as $server) {
                 if (empty($server->disk_details)) {
                     $server->disk_details = json_encode(AzureApi::getDisks($server));
                     $server->save();
@@ -465,7 +463,7 @@ class UserAzure extends UserBase
                 $statistics = AzureApi::getVirtualMachineStatistics($server, $start_time, $stop_time);
                 foreach ($statistics['value'] as $key => $value) {
                     if ($value['name']['value'] == 'Network In Total') {
-                        $network_in_total  = $statistics['value'][$key]['timeseries']['0']['data'];
+                        $network_in_total = $statistics['value'][$key]['timeseries']['0']['data'];
                     }
                 }
                 $network_in_traffic = UserAzureServer::processNetworkData($network_in_total, true);
@@ -499,8 +497,7 @@ class UserAzure extends UserBase
     public static function refreshTheResourceStatusUnderTheAccount($account)
     {
         $servers = AzureServer::where('account_id', $account->id)->select();
-        foreach ($servers as $server)
-        {
+        foreach ($servers as $server) {
             $vm_status = AzureApi::getAzureVirtualMachineStatus($server->account_id, $server->request_url);
             $server->status = $vm_status['statuses']['1']['code'];
             $server->save();
@@ -517,11 +514,11 @@ class UserAzure extends UserBase
             return json(Tools::msg('0', '刷新失败', $e->getMessage()));
         }
 
-        $account->az_sub            = json_encode($sub_info);
-        $account->az_sub_status     = $sub_info['value']['0']['state'];
-        $account->az_sub_type       = self::discern($sub_info['value']['0']['subscriptionPolicies']['quotaId']);
+        $account->az_sub = json_encode($sub_info);
+        $account->az_sub_status = $sub_info['value']['0']['state'];
+        $account->az_sub_type = self::discern($sub_info['value']['0']['subscriptionPolicies']['quotaId']);
         $account->az_sub_updated_at = time();
-        $account->updated_at        = time();
+        $account->updated_at = time();
         $account->save();
 
         if ($sub_info['value']['0']['state'] != 'Enabled') {
@@ -552,9 +549,9 @@ class UserAzure extends UserBase
         }
 
         $accounts = Azure::where('user_id', $user_id)
-        ->where('az_sub_status', '<>', 'Disabled')
-        ->whereIn('az_sub_type', $query_set)
-        ->select();
+            ->where('az_sub_status', '<>', 'Disabled')
+            ->whereIn('az_sub_type', $query_set)
+            ->select();
 
         $params = [
             'refresh_action' => $refresh_action,
@@ -564,8 +561,7 @@ class UserAzure extends UserBase
         $task_id = UserTask::create(session('user_id'), '刷新账户订阅状态', $params, $task_uuid);
         $steps = $accounts->count() + 1;
 
-        foreach ($accounts as $account)
-        {
+        foreach ($accounts as $account) {
             $count += 1;
 
             try {
@@ -579,11 +575,11 @@ class UserAzure extends UserBase
                 return json(Tools::msg('0', '刷新失败', $e->getMessage()));
             }
 
-            $account->az_sub            = json_encode($sub_info);
-            $account->az_sub_status     = $sub_info['value']['0']['state'];
-            $account->az_sub_type       = self::discern($sub_info['value']['0']['subscriptionPolicies']['quotaId']);
+            $account->az_sub = json_encode($sub_info);
+            $account->az_sub_status = $sub_info['value']['0']['state'];
+            $account->az_sub_type = self::discern($sub_info['value']['0']['subscriptionPolicies']['quotaId']);
             $account->az_sub_updated_at = time();
-            $account->updated_at        = time();
+            $account->updated_at = time();
             $account->save();
 
             if ($sub_info['value']['0']['state'] != 'Enabled') {
@@ -663,8 +659,8 @@ class UserAzure extends UserBase
         $resource_group = end($resource_group);
 
         AzureServer::where('at_subscription_id', $subscriptions)
-        ->where('resource_group', $resource_group)
-        ->delete();
+            ->where('resource_group', $resource_group)
+            ->delete();
 
         return json(Tools::msg('1', '删除结果', '删除所有资源需要 3~5 分钟完成'));
     }
@@ -729,8 +725,8 @@ class UserAzure extends UserBase
         $data = [];
         $result = AzureApi::getQuota($account, $location);
         foreach ($result['value'] as $item) {
-            $array['note']  = $item['properties']['name']['localizedValue'];
-            $array['name']  = $item['properties']['name']['value'];
+            $array['note'] = $item['properties']['name']['localizedValue'];
+            $array['name'] = $item['properties']['name']['value'];
             $array['usage'] = $item['properties']['currentValue'];
             $array['limit'] = $item['properties']['limit'];
             array_push($data, $array);

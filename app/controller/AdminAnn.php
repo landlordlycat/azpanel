@@ -1,9 +1,9 @@
 <?php
 namespace app\controller;
 
-use think\facade\View;
 use app\controller\Tools;
 use app\model\Ann;
+use think\facade\View;
 
 class AdminAnn extends AdminBase
 {
@@ -22,18 +22,18 @@ class AdminAnn extends AdminBase
 
     public function save()
     {
-        $title   = input('title/s');
-        $status  = input('status');
+        $title = input('title/s');
+        $status = input('status');
         $content = input('content/s');
 
         if ($title == '' || $content == '') {
             return json(Tools::msg('0', '添加失败', '标题或内容不能为空'));
         }
-        
+
         $ann = new Ann;
-        $ann->title      = $title;
-        $ann->content    = $content;
-        $ann->status     = $status;
+        $ann->title = $title;
+        $ann->content = $content;
+        $ann->status = $status;
         $ann->created_at = time();
         $ann->updated_at = time();
         $ann->save();
@@ -51,8 +51,8 @@ class AdminAnn extends AdminBase
 
     public function update($id)
     {
-        $title   = input('title');
-        $status  = input('status');
+        $title = input('title');
+        $status = input('status');
         $content = input('content');
 
         if ($title == '' || $content == '') {
@@ -60,9 +60,9 @@ class AdminAnn extends AdminBase
         }
 
         $ann = Ann::find($id);
-        $ann->title      = $title;
-        $ann->content    = $content;
-        $ann->status     = $status;
+        $ann->title = $title;
+        $ann->content = $content;
+        $ann->status = $status;
         $ann->updated_at = time();
         $ann->save();
 

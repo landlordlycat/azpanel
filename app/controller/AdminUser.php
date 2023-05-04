@@ -1,24 +1,24 @@
 <?php
 namespace app\controller;
 
-use think\facade\Db;
-use think\facade\View;
-use think\facade\Request;
-use think\helper\Str;
-use app\controller\Tools;
-use app\controller\Notify;
 use app\controller\AzureList;
-use app\model\User;
+use app\controller\Notify;
+use app\controller\Tools;
 use app\model\Azure;
-use app\model\Config;
 use app\model\AzureServer;
+use app\model\Config;
+use app\model\User;
+use think\facade\Db;
+use think\facade\Request;
+use think\facade\View;
+use think\helper\Str;
 
 class AdminUser extends AdminBase
 {
     public function index()
     {
         $users = User::paginate(10);
-        
+
         View::assign('users', $users);
         View::assign('page', $users->render());
         return View::fetch('../app/view/admin/user/index.html');
@@ -32,16 +32,16 @@ class AdminUser extends AdminBase
     public function update($id)
     {
         $user = User::find($id);
-        $user->remark     = (input('remark') == '') ? null : input('remark');
-        $user->email      = input('email');
-        $user->is_admin   = input('admin');
-        $user->status     = input('status');
+        $user->remark = (input('remark') == '') ? null : input('remark');
+        $user->email = input('email');
+        $user->is_admin = input('admin');
+        $user->status = input('status');
         $user->updated_at = time();
-        
+
         if (input('passwd') != '') {
             $user->passwd = Tools::encryption(input('passwd'));
         }
-        
+
         $user->save();
         return json(Tools::msg('1', '修改结果', '修改成功'));
     }
@@ -58,23 +58,23 @@ class AdminUser extends AdminBase
     {
         $exist = User::where('email', input('email'))->find();
         if ($exist != null) {
-        	return json(Tools::msg('0', '添加失败', '此邮箱已注册'));
+            return json(Tools::msg('0', '添加失败', '此邮箱已注册'));
         }
-        
+
         $user = new User;
-        $user->email      = input('email');
-        $user->is_admin   = input('admin');
-        $user->status     = 1;
+        $user->email = input('email');
+        $user->is_admin = input('admin');
+        $user->status = 1;
         $user->created_at = time();
         $user->updated_at = time();
-        
+
         (input('passwd') == '') ? $passwd = Str::random($length = 16) : $passwd = input('passwd');
         (input('remark') == '') ? $remark = null : $remark = input('remark');
 
-        $user->passwd      = Tools::encryption($passwd);
+        $user->passwd = Tools::encryption($passwd);
         $user->personalise = AzureList::defaultPersonalise();
-        $user->remark      = $remark;
-        
+        $user->remark = $remark;
+
         if (Config::obtain('email_notify')) {
             $text = '欢迎使用 Azure Panel'
             . '<br/>登录账户：' . input('email')
@@ -82,7 +82,7 @@ class AdminUser extends AdminBase
             . '<br/>登录地址：' . Request::domain();
             Notify::email(input('email'), '登录信息', $text);
         }
-        
+
         $user->save();
         return json(Tools::msg('1', '添加结果', '添加成功'));
     }
@@ -105,9 +105,9 @@ class AdminUser extends AdminBase
     public function delete($id)
     {
         if ($id == session('user_id')) {
-        	return json(Tools::msg('0', '删除失败', '不能删除当前登录账户'));
+            return json(Tools::msg('0', '删除失败', '不能删除当前登录账户'));
         }
-        
+
         User::destroy($id);
         Azure::where('user_id', $id)->delete();
         AzureServer::where('user_id', $id)->delete();
@@ -136,18 +136,18 @@ class AdminUser extends AdminBase
             'account_number' => Azure::count(),
             'valid_account_number' => Azure::where('az_sub_status', 'Enabled')->count(),
             'valid_payasyougo_account_number' => Azure::where('az_sub_status', 'Enabled')
-            ->where('az_sub_type', 'PayAsYouGo')
-            ->count(),
+                ->where('az_sub_type', 'PayAsYouGo')
+                ->count(),
             'valid_students_account_number' => Azure::where('az_sub_status', 'Enabled')
-            ->where('az_sub_type', 'Students')
-            ->count(),
+                ->where('az_sub_type', 'Students')
+                ->count(),
             'valid_freetrial_account_number' => Azure::where('az_sub_status', 'Enabled')
-            ->where('az_sub_type', 'FreeTrial')
-            ->count(),
+                ->where('az_sub_type', 'FreeTrial')
+                ->count(),
             'server_number' => AzureServer::count(),
             'valid_server_number' => AzureServer::where('status', 'PowerState/running')
-            ->where('skip', '<>', '1')
-            ->count(),
+                ->where('skip', '<>', '1')
+                ->count(),
         ];
 
         View::assign('data', $data);

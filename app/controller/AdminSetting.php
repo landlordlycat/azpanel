@@ -18,15 +18,15 @@ class AdminSetting extends AdminBase
 
     public function baseSave()
     {
-        $class = input('class');
+        $class = input('class/s');
 
-        if ($class == 'notify') {
+        if ($class === 'notify') {
             $list = ['email_notify', 'telegram_notify'];
-        } elseif ($class == 'register') {
+        } elseif ($class === 'register') {
             $list = ['allow_public_reg', 'reg_email_veriy'];
-        } elseif ($class == 'verify') {
+        } elseif ($class === 'verify') {
             $list = ['captcha_provider', 'registration_verification_code', 'login_verification_code', 'reset_password_verification_code', 'create_virtual_machine_verification_code'];
-        } elseif ($class == 'hcaptcha') {
+        } elseif ($class === 'hcaptcha') {
             $list = ['hcaptcha_secret', 'hcaptcha_site_key'];
         }
 

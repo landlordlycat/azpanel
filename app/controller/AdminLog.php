@@ -1,11 +1,11 @@
 <?php
 namespace app\controller;
 
+use app\model\AzureServerResize;
+use app\model\ControlLog;
+use app\model\LoginLog;
 use app\model\Task;
 use app\model\Verify;
-use app\model\LoginLog;
-use app\model\ControlLog;
-use app\model\AzureServerResize;
 use think\facade\View;
 
 class AdminLog extends AdminBase
@@ -68,8 +68,8 @@ class AdminLog extends AdminBase
         $params = json_decode($log->params);
         $ignore_check = isset($params->account->check) ? $params->account->check : null;
         $error_code = isset($error->error->code) ? $error->error->code : null;
-        $error = json_encode($error, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
-        $params = json_encode($params, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
+        $error = json_encode($error, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        $params = json_encode($params, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         View::assign([
             'log' => $log,

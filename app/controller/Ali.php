@@ -80,7 +80,7 @@ class Ali
             ->toArray();
 
         if ($response['TotalCount'] > 1) {
-            throw new \Exception('此记录有多个解析，请手动同步');
+            throw new \Exception ('此记录有多个解析，请手动同步');
         }
 
         return $response['DomainRecords']['Record']['0']['RecordId'];
