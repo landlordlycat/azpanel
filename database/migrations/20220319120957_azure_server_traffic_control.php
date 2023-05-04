@@ -1,7 +1,7 @@
 <?php
 
-use think\migration\Migrator;
 use think\migration\db\Column;
+use think\migration\Migrator;
 
 class AzureServerTrafficControl extends Migrator
 {
@@ -29,10 +29,10 @@ class AzureServerTrafficControl extends Migrator
     public function change()
     {
         $table = $this->table('azure_server');
-        $table->addColumn('rule', 'integer', array(
+        $table->addColumn('rule', 'integer', [
             'comment' => '流量控制规则',
             'default' => '0',
-            'after' => 'request_url'
-            ))->update();
+            'after' => 'request_url',
+        ])->update();
     }
 }
