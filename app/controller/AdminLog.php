@@ -1,4 +1,5 @@
 <?php
+
 namespace app\controller;
 
 use app\model\AzureServerResize;
@@ -66,8 +67,8 @@ class AdminLog extends AdminBase
         $total = json_decode($log->total, true);
         $error = isset($log->error) ? json_decode($log->error) : null;
         $params = json_decode($log->params);
-        $ignore_check = isset($params->account->check) ? $params->account->check : null;
-        $error_code = isset($error->error->code) ? $error->error->code : null;
+        $ignore_check = $params->account->check ?? null;
+        $error_code = $error->error->code ?? null;
         $error = json_encode($error, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         $params = json_encode($params, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 

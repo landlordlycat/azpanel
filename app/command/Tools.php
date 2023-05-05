@@ -16,13 +16,6 @@ use think\facade\Log;
 
 class Tools extends Command
 {
-    protected function configure()
-    {
-        $this->setName('tools')
-            ->addOption('action', null, Option::VALUE_REQUIRED, 'action')
-            ->setDescription('Website Toolbox');
-    }
-
     public static function statisticsTraffic()
     {
         $servers = AzureServer::where('status', '<>', 'PowerState/deallocated')
@@ -64,6 +57,13 @@ class Tools extends Command
                 $server->save();
             }
         }
+    }
+
+    protected function configure()
+    {
+        $this->setName('tools')
+            ->addOption('action', null, Option::VALUE_REQUIRED, 'action')
+            ->setDescription('Website Toolbox');
     }
 
     protected function execute(Input $input, Output $output)

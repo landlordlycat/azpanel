@@ -1,7 +1,7 @@
 <?php
+
 namespace app\controller;
 
-use app\controller\Tools;
 use app\model\Ann;
 use app\model\AutoRefresh;
 use app\model\AzureRecycle;
@@ -12,6 +12,7 @@ use app\model\SshKey;
 use app\model\User;
 use phpseclib3\Crypt\RSA;
 use think\facade\View;
+use Tools;
 
 class UserDashboard extends UserBase
 {
@@ -82,8 +83,8 @@ class UserDashboard extends UserBase
         $personalise = json_decode($profile->personalise, true);
 
         $refresh_setting = AutoRefresh::where('user_id', $user_id)->find();
-        if ($refresh_setting == null) {
-            $auto_refresh = new AutoRefresh;
+        if ($refresh_setting === null) {
+            $auto_refresh = new AutoRefresh();
 
             $auto_refresh->user_id = $user_id;
             $auto_refresh->rate = '24';
@@ -117,17 +118,17 @@ class UserDashboard extends UserBase
         $new_passwd = input('new_passwd/s');
         $again_passwd = input('again_passwd/s');
 
-        if ($passwd == '' || $new_passwd == '' || $again_passwd == '') {
+        if ($passwd === '' || $new_passwd === '' || $again_passwd === '') {
             return json(Tools::msg('0', '修改失败', '完成所有必要输入'));
         }
 
-        if ($new_passwd != $again_passwd) {
+        if ($new_passwd !== $again_passwd) {
             return json(Tools::msg('0', '修改失败', '输入的新密码不一致'));
         }
 
         $user = User::find(session('user_id'));
 
-        if ($user->passwd != $passwd) {
+        if ($user->passwd !== $passwd) {
             return json(Tools::msg('0', '修改失败', '当前密码不正确'));
         }
 
@@ -198,12 +199,12 @@ class UserDashboard extends UserBase
     {
         $user_id = session('user_id');
         $auto_refresh_rate = input('auto_refresh_rate/s');
-        $auto_refresh_switch = input('auto_refresh_switch/s');
-        $auto_refresh_telegram_push = input('auto_refresh_telegram_push/s');
+        $auto_refresh_switch = (int) input('auto_refresh_switch');
+        $auto_refresh_telegram_push = (int) input('auto_refresh_telegram_push');
 
         $user = User::find($user_id);
-        if ($auto_refresh_telegram_push == '1' && $auto_refresh_switch == '1') {
-            if (empty($user->notify_tgid)) {
+        if ($auto_refresh_telegram_push === 1 && $auto_refresh_switch === 1) {
+            if (!isset($user->notify_tgid)) {
                 return json(Tools::msg('0', '保存失败', '请先设置 Telegram 推送接收账户'));
             }
         }
@@ -224,7 +225,7 @@ class UserDashboard extends UserBase
         $public = $ssh_key->getPublicKey()->toString('OpenSSH');
         $private = $ssh_key->toString('OpenSSH');
 
-        $key = new SshKey;
+        $key = new SshKey();
         $key->name = $name;
         $key->user_id = session('user_id');
         $key->public_key = $public;

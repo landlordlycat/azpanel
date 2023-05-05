@@ -1,17 +1,18 @@
 <?php
+
 namespace app\controller;
 
-use app\controller\AzureList;
-use app\controller\Notify;
-use app\controller\Tools;
 use app\model\Azure;
 use app\model\AzureServer;
 use app\model\Config;
 use app\model\User;
+use AzureList;
+use Notify;
 use think\facade\Db;
 use think\facade\Request;
 use think\facade\View;
 use think\helper\Str;
+use Tools;
 
 class AdminUser extends AdminBase
 {
@@ -32,14 +33,14 @@ class AdminUser extends AdminBase
     public function update($id)
     {
         $user = User::find($id);
-        $user->remark = (input('remark') == '') ? null : input('remark');
+        $user->remark = input('remark/s') === '' ? null : input('remark');
         $user->email = input('email');
         $user->is_admin = input('admin');
         $user->status = input('status');
         $user->updated_at = time();
 
-        if (input('passwd') != '') {
-            $user->passwd = Tools::encryption(input('passwd'));
+        if (input('passwd/s') !== '') {
+            $user->passwd = Tools::encryption(input('passwd/s'));
         }
 
         $user->save();
@@ -57,19 +58,19 @@ class AdminUser extends AdminBase
     public function save()
     {
         $exist = User::where('email', input('email'))->find();
-        if ($exist != null) {
+        if ($exist !== null) {
             return json(Tools::msg('0', '添加失败', '此邮箱已注册'));
         }
 
-        $user = new User;
+        $user = new User();
         $user->email = input('email');
         $user->is_admin = input('admin');
         $user->status = 1;
         $user->created_at = time();
         $user->updated_at = time();
 
-        (input('passwd') == '') ? $passwd = Str::random($length = 16) : $passwd = input('passwd');
-        (input('remark') == '') ? $remark = null : $remark = input('remark');
+        input('passwd/s') === '' ? $passwd = Str::random($length = 16) : $passwd = input('passwd/s');
+        input('remark/s') === '' ? $remark = null : $remark = input('remark/s');
 
         $user->passwd = Tools::encryption($passwd);
         $user->personalise = AzureList::defaultPersonalise();
@@ -89,8 +90,8 @@ class AdminUser extends AdminBase
 
     public function remark($id)
     {
-        $remark = input('remark');
-        if ($remark == '') {
+        $remark = input('remark/s');
+        if ($remark === '') {
             return json(Tools::msg('0', '修改结果', '备注不能为空'));
         }
 
@@ -104,7 +105,7 @@ class AdminUser extends AdminBase
 
     public function delete($id)
     {
-        if ($id == session('user_id')) {
+        if ($id === (int) session('user_id')) {
             return json(Tools::msg('0', '删除失败', '不能删除当前登录账户'));
         }
 

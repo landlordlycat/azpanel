@@ -1,4 +1,5 @@
 <?php
+
 namespace app\controller;
 
 use app\model\Task;
@@ -7,7 +8,7 @@ class UserTask
 {
     public static function create($user_id, $name, $params = null, $task_uuid = null)
     {
-        $task = new Task;
+        $task = new Task();
         $msg = [];
         $task->user_id = $user_id;
         $task->task_uuid = $task_uuid;
@@ -31,8 +32,7 @@ class UserTask
 
     public static function query($task_id)
     {
-        $task = Task::find($task_id);
-        return $task;
+        return Task::find($task_id);
     }
 
     public static function ajaxQuery($uuid)
@@ -75,8 +75,8 @@ class UserTask
         $task = Task::find($task_id);
         $total = json_decode($task->total, true);
 
-        if ($crash == true) {
-            if ($cancel == false) {
+        if ($crash === true) {
+            if ($cancel === false) {
                 $task->status = 'terminated';
                 $task->current = '任务出错';
             } else {
@@ -89,7 +89,7 @@ class UserTask
             $task->current = '任务已完成';
         }
 
-        if ($error != null) {
+        if ($error !== null) {
             $task->error = $error;
         }
 
@@ -101,7 +101,7 @@ class UserTask
 
         $task->total = json_encode($total, JSON_UNESCAPED_UNICODE);
         $task->updated_at = time();
-        $task->total_time = time() - ($task->created_at);
+        $task->total_time = time() - $task->created_at;
         $task->save();
     }
 }

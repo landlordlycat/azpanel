@@ -1,4 +1,5 @@
 <?php
+
 namespace app\controller;
 
 use AlibabaCloud\Client\AlibabaCloud;
@@ -6,7 +7,7 @@ use app\model\Config;
 
 class Ali
 {
-    public static function count($rr)
+    public static function count($rr): int
     {
         $configs = Config::group('resolv');
         AlibabaCloud::accessKeyClient($configs['ali_ak'], $configs['ali_sk'])
@@ -32,7 +33,7 @@ class Ali
 
     public static function createOrUpdate($rr, $ip)
     {
-        if (self::count($rr) == '0') {
+        if (self::count($rr) === 0) {
             return self::create($rr, $ip);
         }
 
@@ -48,7 +49,7 @@ class Ali
             ->method('POST')
             ->options([
                 'query' => [
-                    'Type' => "A",
+                    'Type' => 'A',
                     'RR' => $rr,
                     'Value' => $ip,
                     'TTL' => $configs['ali_ttl'],
@@ -80,7 +81,7 @@ class Ali
             ->toArray();
 
         if ($response['TotalCount'] > 1) {
-            throw new \Exception ('此记录有多个解析，请手动同步');
+            throw new \Exception('此记录有多个解析，请手动同步');
         }
 
         return $response['DomainRecords']['Record']['0']['RecordId'];
@@ -101,7 +102,7 @@ class Ali
             ->options([
                 'query' => [
                     'RR' => $rr,
-                    'Type' => "A",
+                    'Type' => 'A',
                     'Value' => $ip,
                     'TTL' => $configs['ali_ttl'],
                     'DomainName' => $configs['ali_domain'],

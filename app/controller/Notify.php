@@ -1,4 +1,5 @@
 <?php
+
 namespace app\controller;
 
 use app\model\Config;
@@ -19,7 +20,7 @@ class Notify
         $mail->Encoding = 'base64';
         $mail->Username = $smtp_configs['smtp_username']; // SMTP username
         $mail->Password = $smtp_configs['smtp_password']; // SMTP password
-        if ($smtp_configs['smtp_port'] == 465) {
+        if ((int) $smtp_configs['smtp_port'] === 465) {
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Enable implicit TLS encryption
         } else {
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
@@ -48,6 +49,6 @@ class Notify
         ];
 
         $url = 'https://api.telegram.org/bot' . Config::obtain('telegram_token') . '/sendMessage?' . http_build_query($params);
-        $result = $client->post($url);
+        $client->post($url);
     }
 }

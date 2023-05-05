@@ -1,23 +1,24 @@
 <?php
+
 namespace app\controller;
 
 use app\BaseController;
-use app\controller\AzureList;
-use app\controller\Notify;
-use app\controller\Tools;
 use app\model\Config;
 use app\model\LoginLog;
 use app\model\User;
 use app\model\Verify;
+use AzureList;
+use Notify;
 use think\facade\Request;
 use think\facade\View;
 use think\helper\Str;
+use Tools;
 
 class Auth extends BaseController
 {
     public function index()
     {
-        if (session('is_login') == '1') {
+        if ((int) session('is_login') === 1) {
             return redirect('/user')->send();
         }
 
@@ -32,7 +33,7 @@ class Auth extends BaseController
         $password = Tools::encryption(input('password/s'));
         $ip_address = Tools::getClientIp();
 
-        if ($email == '' || $password == '') {
+        if ($email === '' || $password === '') {
             $data = ['status' => '0', 'title' => '登录失败', 'content' => '邮箱或密码不能为空'];
             return json($data);
         }
@@ -42,29 +43,29 @@ class Auth extends BaseController
         }
 
         if (Config::obtain('login_verification_code')) {
-            if (Config::obtain('captcha_provider') == 'hcaptcha') {
+            if (Config::obtain('captcha_provider') === 'hcaptcha') {
                 $code = input('hcaptcha_result/s');
-                if ($code == '') {
+                if ($code === '') {
                     return json(Tools::msg('0', '登录失败', '请完成验证码'));
                 }
                 if (!Tools::verifyHcaptcha($code)) {
                     return json(Tools::msg('0', '登录失败', '验证码错误'));
                 }
             }
-            if (!captcha_check($code) && Config::obtain('captcha_provider') == 'think-captcha') {
+            if (!captcha_check($code) && Config::obtain('captcha_provider') === 'think-captcha') {
                 return json(Tools::msg('0', '登录失败', '验证码错误'));
             }
         }
 
-        $log = new LoginLog;
+        $log = new LoginLog();
         $log->email = $email;
         $log->ip = $ip_address;
-        $log->ip_info = Tools::IpInfo($ip_address);
+        $log->ip_info = Tools::ipInfo($ip_address);
         $log->created_at = time();
         $log->ua = Request::header('user-agent');
 
         $user = User::where('email', $email)->find();
-        if ($user == null) {
+        if ($user === null) {
             $log->status = 0;
             $log->info = 'invalid.user';
             $log->save();
@@ -73,7 +74,7 @@ class Auth extends BaseController
             return json($data);
         }
 
-        if ($password != $user->passwd) {
+        if ($password !== $user->passwd) {
             $log->status = 0;
             $log->info = 'passwd.error';
             $log->save();
@@ -82,7 +83,7 @@ class Auth extends BaseController
             return json($data);
         }
 
-        if ($user->status == 0) {
+        if ($user->status === 0) {
             $log->status = 0;
             $log->info = 'disabled.status';
             $log->save();
@@ -94,7 +95,7 @@ class Auth extends BaseController
         session('is_login', 1);
         session('user_id', $user->id);
 
-        if ($user->is_admin == '1') {
+        if ($user->is_admin === 1) {
             session('is_admin', 1);
         }
 
@@ -131,7 +132,7 @@ class Auth extends BaseController
             return json(Tools::msg('0', '注册失败', '邮箱不规范'));
         }
 
-        if (Config::obtain('reg_email_veriy') == false) {
+        if (Config::obtain('reg_email_veriy') === false) {
             return json(Tools::msg('0', '发送失败', '注册无需验证邮箱'));
         }
 
@@ -139,12 +140,12 @@ class Auth extends BaseController
             ->order('id', 'desc')
             ->find();
 
-        if ($exist != null && (time() - $exist->created_at) < 60) {
+        if ($exist !== null && (time() - $exist->created_at) < 60) {
             return json(Tools::msg('0', '发送失败', '两次发送时间间隔小于 60 秒'));
         }
 
         $exist = User::where('email', $email)->find();
-        if ($exist != null) {
+        if ($exist !== null) {
             return json(Tools::msg('0', '注册失败', '此邮箱已注册'));
         }
 
@@ -168,7 +169,7 @@ class Auth extends BaseController
         $code = Str::random($length = 8);
         $code = Str::lower($code);
 
-        $verify = new Verify;
+        $verify = new Verify();
         $verify->email = $email;
         $verify->type = 'register';
         $verify->code = $code;
@@ -194,41 +195,41 @@ class Auth extends BaseController
         }
 
         if (Config::obtain('registration_verification_code')) {
-            if (Config::obtain('captcha_provider') == 'hcaptcha') {
+            if (Config::obtain('captcha_provider') === 'hcaptcha') {
                 $code = input('hcaptcha_result/s');
-                if ($code == '') {
+                if ($code === '') {
                     return json(Tools::msg('0', '登录失败', '请完成验证码'));
                 }
                 if (!Tools::verifyHcaptcha($code)) {
                     return json(Tools::msg('0', '登录失败', '验证码错误'));
                 }
             }
-            if (!captcha_check($code) && Config::obtain('captcha_provider') == 'think-captcha') {
+            if (!captcha_check($code) && Config::obtain('captcha_provider') === 'think-captcha') {
                 return json(Tools::msg('0', '登录失败', '验证码错误'));
             }
         }
 
         $exist = User::where('email', $email)->find();
-        if ($exist != null) {
+        if ($exist !== null) {
             return json(Tools::msg('0', '注册失败', '此邮箱已注册'));
         }
 
-        if ($passwd == '' || $repeat_passwd == '') {
+        if ($passwd === '' || $repeat_passwd === '') {
             return json(Tools::msg('0', '注册失败', '请设置密码'));
         }
 
-        if ($passwd != $repeat_passwd) {
+        if ($passwd !== $repeat_passwd) {
             return json(Tools::msg('0', '注册失败', '两次输入的密码不符'));
         }
 
-        if (Config::obtain('reg_email_veriy') == true) {
+        if (Config::obtain('reg_email_veriy') === true) {
             $verify_code = input('verify_code/s');
 
             $verify = Verify::where('email', $email)
                 ->order('id', 'desc')
                 ->find();
 
-            if ($verify == null || $verify->code != $verify_code) {
+            if ($verify === null || (string) $verify->code !== (string) $verify_code) {
                 return json(Tools::msg('0', '注册失败', '验证码不相符'));
             }
 
@@ -240,7 +241,7 @@ class Auth extends BaseController
             $verify->save();
         }
 
-        $user = new User;
+        $user = new User();
         $user->email = $email;
         $user->passwd = Tools::encryption($passwd);
         $user->status = 1;
@@ -274,12 +275,12 @@ class Auth extends BaseController
             ->order('id', 'desc')
             ->find();
 
-        if ($exist != null && (time() - $exist->created_at) < 60) {
+        if ($exist !== null && (time() - $exist->created_at) < 60) {
             return json(Tools::msg('0', '发送失败', '两次发送时间间隔小于 60 秒'));
         }
 
         $exist = User::where('email', $email)->find();
-        if ($exist == null) {
+        if ($exist === null) {
             return json(Tools::msg('0', '发送失败', '此邮箱未注册'));
         }
 
@@ -303,7 +304,7 @@ class Auth extends BaseController
         $code = Str::random($length = 8);
         $code = Str::lower($code);
 
-        $verify = new Verify;
+        $verify = new Verify();
         $verify->email = $email;
         $verify->type = 'forget';
         $verify->code = $code;
@@ -329,11 +330,11 @@ class Auth extends BaseController
         }
 
         $exist = User::where('email', $email)->find();
-        if ($exist == null) {
+        if ($exist === null) {
             return json(Tools::msg('0', '重置失败', '此邮箱未注册'));
         }
 
-        if ($passwd != $repeat_passwd) {
+        if ($passwd !== $repeat_passwd) {
             return json(Tools::msg('0', '重置失败', '两次输入的密码不符'));
         }
 
@@ -341,7 +342,7 @@ class Auth extends BaseController
             ->order('id', 'desc')
             ->find();
 
-        if ($verify->code != $verify_code) {
+        if ((string) $verify->code !== (string) $verify_code) {
             return json(Tools::msg('0', '重置失败', '验证码不相符'));
         }
 
