@@ -1,9 +1,10 @@
 <?php
+
 namespace app\controller;
 
-use app\controller\Tools;
 use app\model\Ann;
 use think\facade\View;
+use Tools;
 
 class AdminAnn extends AdminBase
 {
@@ -26,11 +27,11 @@ class AdminAnn extends AdminBase
         $status = input('status');
         $content = input('content/s');
 
-        if ($title == '' || $content == '') {
+        if ($title === '' || $content === '') {
             return json(Tools::msg('0', '添加失败', '标题或内容不能为空'));
         }
 
-        $ann = new Ann;
+        $ann = new Ann();
         $ann->title = $title;
         $ann->content = $content;
         $ann->status = $status;
@@ -55,7 +56,7 @@ class AdminAnn extends AdminBase
         $status = input('status');
         $content = input('content');
 
-        if ($title == '' || $content == '') {
+        if ($title === '' || $content === '') {
             return json(Tools::msg('0', '更新失败', '公告标题或内容不能为空'));
         }
 

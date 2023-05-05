@@ -1,4 +1,5 @@
 <?php
+
 namespace app\controller;
 
 class Ip
@@ -17,17 +18,22 @@ class Ip
         $this->total = ($this->last - $this->first) / 7; //每条索引7字节
     }
 
+    //析构函数
+    public function __destruct()
+    {
+        fclose($this->fh);
+    }
+
     //检查IP合法性
     public function checkIp($ip)
     {
         $arr = explode('.', $ip);
-        if (count($arr) != 4) {
+        if (count($arr) !== 4) {
             return false;
-        } else {
-            for ($i = 0; $i < 4; $i++) {
-                if ($arr[$i] < '0' || $arr[$i] > '255') {
-                    return false;
-                }
+        }
+        for ($i = 0; $i < 4; $i++) {
+            if ($arr[$i] < '0' || $arr[$i] > '255') {
+                return false;
             }
         }
         return true;
@@ -48,10 +54,10 @@ class Ip
     }
 
     //查询信息
-    public function getInfo($data = "")
+    public function getInfo($data = '')
     {
         $char = fread($this->fh, 1);
-        while (ord($char) != 0) { //国家地区信息以0结束
+        while (ord($char) !== 0) { //国家地区信息以0结束
             $data .= $char;
             $char = fread($this->fh, 1);
         }
@@ -78,7 +84,6 @@ class Ip
             default:
                 $area = $this->getInfo($byte);
                 break; //地区没有被重定向
-
         }
         return $area;
     }
@@ -113,6 +118,7 @@ class Ip
 
         //查询国家地区信息
         fseek($this->fh, $findip);
+        $location = [];
         $location['beginip'] = long2ip($this->getLong4()); //用户IP所在范围的开始地址
         $offset = $this->getlong3();
         fseek($this->fh, $offset);
@@ -155,11 +161,5 @@ class Ip
         }
 
         return $location;
-    }
-
-    //析构函数
-    public function __destruct()
-    {
-        fclose($this->fh);
     }
 }

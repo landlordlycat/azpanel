@@ -1,11 +1,12 @@
 <?php
+
 namespace app\controller;
 
-use app\controller\Tools;
 use app\model\AzureServer;
 use app\model\ControlLog;
 use app\model\ControlRule;
 use think\facade\View;
+use Tools;
 
 class UserAzureServerRule extends UserBase
 {
@@ -47,11 +48,11 @@ class UserAzureServerRule extends UserBase
         $rule_execute_push = (int) input('rule_execute_push/s');
         $rule_recover_push = (int) input('rule_recover_push/s');
 
-        if (empty($rule_name)) {
+        if ($rule_name === '') {
             return json(Tools::msg('0', '创建失败', '须设置规则名称'));
         }
 
-        $rule = new ControlRule;
+        $rule = new ControlRule();
         $rule->user_id = session('user_id');
         $rule->name = $rule_name;
         $rule->index = $rule_index;
@@ -71,7 +72,7 @@ class UserAzureServerRule extends UserBase
     public function edit($id)
     {
         $rule = ControlRule::find($id);
-        if ($rule == null || $rule->user_id != session('user_id')) {
+        if ($rule === null || $rule->user_id !== (int) session('user_id')) {
             return View::fetch('../app/view/user/reject.html');
         }
 
@@ -90,7 +91,7 @@ class UserAzureServerRule extends UserBase
         $rule_execute_push = (int) input('rule_execute_push/s');
         $rule_recover_push = (int) input('rule_recover_push/s');
 
-        if (empty($rule_name)) {
+        if ($rule_name === '') {
             return json(Tools::msg('0', '更新失败', '须设置规则名称'));
         }
 

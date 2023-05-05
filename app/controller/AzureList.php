@@ -1,4 +1,5 @@
 <?php
+
 namespace app\controller;
 
 use think\helper\Str;
@@ -14,7 +15,7 @@ class AzureList
         // az vm image list --publisher MicrosoftWindowsDesktop --offer windows-10 --all --output table
         // az vm image list --publisher MicrosoftWindowsDesktop --offer windows-11 --all --output table
 
-        $images_list = [
+        return [
             // Debian series
             'Debian_9' => [
                 'display' => 'Debian 9',
@@ -175,15 +176,13 @@ class AzureList
                 'offer' => 'Windows-11',
             ],
         ];
-
-        return $images_list;
     }
 
     public static function sizes()
     {
         // https://azureprice.net
 
-        $sizes_list = [
+        return [
             'Standard_B1ls' => [
                 'cpu' => '1',
                 'memory' => '0.5',
@@ -281,15 +280,13 @@ class AzureList
                 'acc' => false,
             ],
         ];
-
-        return $sizes_list;
     }
 
     public static function locations()
     {
         // https://docs.microsoft.com/en-us/rest/api/resources/subscriptions/list-locations
 
-        $locations_list = [
+        return [
             // 常用
             'eastasia' => '东亚 中国香港',
             'southeastasia' => '东南亚 新加坡',
@@ -333,8 +330,6 @@ class AzureList
             'southafricanorth' => '南非北部 约翰内斯堡',
             'uaenorth' => '阿联酋北部 迪拜',
         ];
-
-        return $locations_list;
     }
 
     public static function defaultPersonalise()
@@ -357,7 +352,7 @@ class AzureList
 
     public static function diskSizes()
     {
-        $sizes = [
+        return [
             '32',
             '64',
             '128',
@@ -367,15 +362,13 @@ class AzureList
             '2048',
             '4095',
         ];
-
-        return $sizes;
     }
 
     public static function diskTiers()
     {
         // https://azure.microsoft.com/en-us/pricing/details/managed-disks/
 
-        $lists = [
+        return [
             'P4' => [
                 'diskMBpsReadWrite' => 25,
                 'diskIOPSReadWrite' => 120,
@@ -409,7 +402,5 @@ class AzureList
                 'diskIOPSReadWrite' => 7500,
             ],
         ];
-
-        return $lists;
     }
 }

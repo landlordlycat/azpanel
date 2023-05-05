@@ -1,11 +1,12 @@
 <?php
+
 namespace app\controller;
 
 use app\BaseController;
-use app\controller\AzureList;
 use app\model\Azure;
 use app\model\AzureServer;
 use app\model\SshKey;
+use AzureList;
 use GuzzleHttp\Client;
 use think\helper\Str;
 
@@ -17,8 +18,8 @@ class AzureApi extends BaseController
 
         $account = Azure::find($account_id);
         if (
-            $account->az_token == null ||
-            $account->az_token_updated_at == null ||
+            $account->az_token === null ||
+            $account->az_token_updated_at === null ||
             (time() - $account->az_token_updated_at) > 3600
         ) {
             $account_configs = json_decode($account->az_api, true);
@@ -43,9 +44,8 @@ class AzureApi extends BaseController
             $account->save();
 
             return $object->access_token;
-        } else {
-            return $account->az_token;
         }
+        return $account->az_token;
     }
 
     public static function getToken($account_id, $more = false)
@@ -184,7 +184,7 @@ class AzureApi extends BaseController
             $exist = AzureServer::where('vm_id', $vm_id)->find();
 
             // 只添加没添加的
-            if ($exist == null) {
+            if ($exist === null) {
                 // 数据处理
                 $count += 1;
                 $params = explode('/', $virtual_machine['id']);
@@ -193,7 +193,7 @@ class AzureApi extends BaseController
                 $instance_details = self::getAzureVirtualMachineStatus($account_id, $virtual_machine['id']);
 
                 // 添加到列表
-                $server = new AzureServer;
+                $server = new AzureServer();
                 $server->account_id = $account_id;
                 $server->user_id = $azure_sub->user_id;
                 $server->account_email = $azure_sub->az_email;
@@ -248,13 +248,13 @@ class AzureApi extends BaseController
         // https://docs.microsoft.com/zh-cn/rest/api/compute/virtual-machines/power-off
         // https://docs.microsoft.com/zh-cn/rest/api/compute/virtual-machines/restart
 
-        if ($action == 'stop') {
+        if ($action === 'stop') {
             $action = 'powerOff';
         }
 
         $client = new Client();
         $url = 'https://management.azure.com' . $request_url . '/' . $action . '?api-version=2021-03-01';
-        $result = $client->post($url, [
+        $client->post($url, [
             'headers' => self::getToken($account_id),
         ]);
     }
@@ -265,7 +265,7 @@ class AzureApi extends BaseController
 
         $client = new Client();
         $url = 'https://management.azure.com' . $request_url . '/deallocate?api-version=2021-03-01';
-        $result = $client->post($url, [
+        $client->post($url, [
             'headers' => self::getToken($account_id),
         ]);
     }
@@ -274,7 +274,7 @@ class AzureApi extends BaseController
     {
         $client = new Client();
         $url = 'https://management.azure.com/subscriptions/' . $subscription_id . '/resourcegroups/' . $resource_group_name . '?api-version=2021-04-01';
-        $result = $client->delete($url, [
+        $client->delete($url, [
             'headers' => self::getToken($account_id),
         ]);
     }
@@ -286,7 +286,7 @@ class AzureApi extends BaseController
 
         $client = new Client();
         $url = 'https://management.azure.com' . $url . '?api-version=2021-04-01';
-        $result = $client->delete($url, [
+        $client->delete($url, [
             'headers' => self::getToken($account->id),
         ]);
     }
@@ -300,14 +300,18 @@ class AzureApi extends BaseController
         ];
 
         $url = 'https://management.azure.com/subscriptions/' . $account->az_sub_id . '/resourcegroups/' . $resource_group_name . '?api-version=2021-04-01';
-        $result = $client->put($url, [
+        $client->put($url, [
             'headers' => self::getToken($account->id, true),
             'json' => $body,
         ]);
     }
 
     public static function createNetworkSecurityGroups(
-        $client, $account, $resource_group_name, $location, $name
+        $client,
+        $account,
+        $resource_group_name,
+        $location,
+        $name
     ) {
         // https://docs.microsoft.com/zh-cn/rest/api/virtualnetwork/network-security-groups/create-or-update
 
@@ -363,7 +367,12 @@ class AzureApi extends BaseController
     }
 
     public static function createAzurePublicNetworkIpv4(
-        $client, $account, $ip_name, $resource_group_name, $location, $create_ipv6
+        $client,
+        $account,
+        $ip_name,
+        $resource_group_name,
+        $location,
+        $create_ipv6
     ) {
         // https://docs.microsoft.com/zh-cn/rest/api/virtualnetwork/public-ip-addresses
 
@@ -395,7 +404,7 @@ class AzureApi extends BaseController
             'json' => $body,
         ]);
 
-        $promise->then(function (ResponseInterface $response) {
+        $promise->then(static function (ResponseInterface $response) {
             $object = json_decode($response->getBody());
             return $object->id;
         });
@@ -434,7 +443,7 @@ class AzureApi extends BaseController
             'json' => $body,
         ]);
 
-        $promise->then(function (ResponseInterface $response) {
+        $promise->then(static function (ResponseInterface $response) {
             $object = json_decode($response->getBody());
             return $object->id;
         });
@@ -457,7 +466,7 @@ class AzureApi extends BaseController
         $lists = json_decode($result->getBody(), true);
 
         foreach ($lists['value'] as $list) {
-            if ($list['location'] == $location) {
+            if ($list['location'] === $location) {
                 $count += 1;
             }
         }
@@ -466,7 +475,12 @@ class AzureApi extends BaseController
     }
 
     public static function createAzureVirtualNetwork(
-        $client, $account, $virtual_network_name, $resource_group_name, $location, $create_ipv6
+        $client,
+        $account,
+        $virtual_network_name,
+        $resource_group_name,
+        $location,
+        $create_ipv6
     ) {
         // https://docs.microsoft.com/zh-cn/rest/api/virtualnetwork/virtual-networks/create-or-update
 
@@ -490,14 +504,19 @@ class AzureApi extends BaseController
 
         $url = 'https://management.azure.com/subscriptions/' . $account->az_sub_id . '/resourceGroups/' . $resource_group_name . '/providers/Microsoft.Network/virtualNetworks/' . $virtual_network_name . '?api-version=2021-03-01';
 
-        $result = $client->put($url, [
+        $client->put($url, [
             'headers' => self::getToken($account->id, true),
             'json' => $body,
         ]);
     }
 
     public static function createAzureVirtualNetworkSubnets(
-        $client, $account, $virtual_network_name, $resource_group_name, $location, $create_ipv6
+        $client,
+        $account,
+        $virtual_network_name,
+        $resource_group_name,
+        $location,
+        $create_ipv6
     ) {
         // https://docs.microsoft.com/zh-cn/rest/api/virtualnetwork/subnets/create-or-update
         // https://luotianyi.vc/5607.html
@@ -530,7 +549,16 @@ class AzureApi extends BaseController
     }
 
     public static function createAzureVirtualNetworkInterfaces(
-        $client, $account, $vm_name, $ipv4_url, $ipv6_url, $subnets_url, $location, $vm_size, $create_ipv6, $security_group_id
+        $client,
+        $account,
+        $vm_name,
+        $ipv4_url,
+        $ipv6_url,
+        $subnets_url,
+        $location,
+        $vm_size,
+        $create_ipv6,
+        $security_group_id
     ) {
         // https://docs.microsoft.com/zh-cn/rest/api/virtualnetwork/network-interfaces/create-or-update
 
@@ -576,7 +604,7 @@ class AzureApi extends BaseController
         // With the GA of AN, region limitations have been removed, making the feature widely available around the world. Supported VM series include D/DSv2, D/DSv3, E/ESv3, F/FS, FSv2, and Ms/Mms.
 
         $sizes_list = AzureList::sizes();
-        if (!empty($sizes_list[$vm_size]['acc'])) {
+        if (isset($sizes_list[$vm_size]['acc'])) {
             if ($sizes_list[$vm_size]['acc']) {
                 $body['properties']['enableAcceleratedNetworking'] = true;
             }
@@ -589,7 +617,7 @@ class AzureApi extends BaseController
             'json' => $body,
         ]);
 
-        $promise->then(function (ResponseInterface $response) {
+        $promise->then(static function (ResponseInterface $response) {
             $object = json_decode($response->getBody());
             return $object->id;
         });
@@ -643,11 +671,11 @@ class AzureApi extends BaseController
             ],
         ];
 
-        if ($vm_config['vm_script'] != null) {
+        if ($vm_config['vm_script'] !== null) {
             $body['properties']['osProfile']['customData'] = $vm_config['vm_script'];
         }
 
-        if ($vm_config['vm_ssh_key'] == '0') {
+        if ((int) $vm_config['vm_ssh_key'] === 0) {
             $body['properties']['osProfile']['adminPassword'] = $vm_config['vm_passwd'];
         } else {
             $ssh_key = SshKey::find($vm_config['vm_ssh_key']);
@@ -681,7 +709,7 @@ class AzureApi extends BaseController
         // https://docs.microsoft.com/zh-cn/rest/api/monitor/metric-definitions/list
         // https://docs.microsoft.com/zh-cn/rest/api/monitor/metrics/list
 
-        if ($start_time == null || $end_time == null) {
+        if ($start_time === null || $end_time === null) {
             $start_time = date('Y-m-d\T H:00:00\Z', time() - 115200); // 24 + 8 h
             $end_time = date('Y-m-d\T H:00:00\Z', time() - 25200);
         }
@@ -711,7 +739,7 @@ class AzureApi extends BaseController
         $url = 'https://management.azure.com' . $request_url . '?api-version=2021-11-01';
 
         $client = new Client();
-        $object = $client->put($url, [
+        $client->put($url, [
             'headers' => self::getToken($account_id, true),
             'json' => $body,
         ]);
@@ -746,7 +774,7 @@ class AzureApi extends BaseController
         $url = 'https://management.azure.com/subscriptions/' . $server->at_subscription_id . '/resourceGroups/' . $server->resource_group . '/providers/Microsoft.Compute/disks/' . $vm_disk_name . '?api-version=2021-04-01';
 
         $client = new Client();
-        $object = $client->put($url, [
+        $client->put($url, [
             'headers' => self::getToken($server->account_id, true),
             'json' => $body,
         ]);

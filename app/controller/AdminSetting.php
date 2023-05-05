@@ -1,10 +1,11 @@
 <?php
+
 namespace app\controller;
 
-use app\controller\Notify;
-use app\controller\Tools;
 use app\model\Config;
+use Notify;
 use think\facade\View;
+use Tools;
 
 class AdminSetting extends AdminBase
 {
@@ -50,7 +51,7 @@ class AdminSetting extends AdminBase
         $list = ['smtp_host', 'smtp_username', 'smtp_password', 'smtp_port', 'smtp_name', 'smtp_sender'];
 
         foreach ($list as $item) {
-            if (input($item) == '') {
+            if ((string) input($item) === '') {
                 return json(Tools::msg('0', '保存失败', '请填写所有项目'));
             }
 
@@ -64,9 +65,9 @@ class AdminSetting extends AdminBase
 
     public function emailPushTest()
     {
-        $recipient = input('recipient');
+        $recipient = input('recipient/s');
 
-        if ($recipient == '') {
+        if ($recipient === '') {
             return json(Tools::msg('0', '发送失败', '请填写收件人'));
         }
 
@@ -85,9 +86,9 @@ class AdminSetting extends AdminBase
 
     public function telegramPushTest()
     {
-        $recipient = (int) input('recipient');
+        $recipient = input('recipient/s');
 
-        if ($recipient == '') {
+        if ($recipient === '') {
             return json(Tools::msg('0', '发送失败', '请填写收信用户 uid'));
         }
 
@@ -111,7 +112,7 @@ class AdminSetting extends AdminBase
         $list = ['telegram_account', 'telegram_token'];
 
         foreach ($list as $item) {
-            if (input($item) == '') {
+            if ((string) input($item) === '') {
                 return json(Tools::msg('0', '保存失败', '请填写所有项目'));
             }
 
